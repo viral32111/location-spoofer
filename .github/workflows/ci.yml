@@ -39,7 +39,7 @@ jobs:
         if: ${{ github.event_name != 'pull_request' && !startsWith( github.ref_name, 'dependabot/' ) }}
         run: |
           echo ${{ secrets.ANDROID_KEY_STORE }} | base64 -d > $HOME/android-key-store.jks
-          echo path=$HOME/android-key-store.apk >> "$GITHUB_OUTPUT"
+          echo path=$HOME/android-key-store.jks >> "$GITHUB_OUTPUT"
 
       - name: Create Gradle properties
         if: ${{ github.event_name != 'pull_request' && !startsWith( github.ref_name, 'dependabot/' ) }}
