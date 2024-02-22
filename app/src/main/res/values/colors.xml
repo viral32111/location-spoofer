@@ -6,7 +6,7 @@
 	<color name="icon_primary">#0073CF</color>
 	<color name="icon_background">#F2FBF2</color>
 
-	<color name="button_start">#4CAF50</color>
+	<color name="button_start">#2E7D32</color>
 	<color name="button_stop">#B71C1C</color>
 
 	<color name="input_hint">#737373</color>
