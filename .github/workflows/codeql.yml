@@ -35,7 +35,7 @@ jobs:
           tools: latest
 
       - name: Build project
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         with:
           arguments: assembleRelease --scan
           cache-disabled: true
