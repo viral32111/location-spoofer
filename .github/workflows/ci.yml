@@ -55,6 +55,8 @@ jobs:
         with:
           arguments: bundle${{ matrix.name }} --scan
           build-scan-publish: true
+          build-scan-terms-of-service-url: https://gradle.com/terms-of-service
+          build-scan-terms-of-service-agree: "yes"
           cache-disabled: true
 
       - name: Terminate lingering processes
