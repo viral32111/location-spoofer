@@ -60,9 +60,10 @@ jobs:
           cache-disabled: true
 
       - name: Terminate lingering processes
+        continue-on-error: true
         run: |
-          pkill -9 java
-          pkill -9 gradle
+          pkill -9 java || true
+          pkill -9 gradle || true
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
