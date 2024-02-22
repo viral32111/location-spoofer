@@ -46,7 +46,7 @@ jobs:
         run: echo "GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}" > local.properties
 
       - name: Build project
-        uses: gradle/gradle-build-action@v3
+        uses: gradle/actions/setup-gradle@v3
         env:
           ANDROID_KEY_STORE_PATH: ${{ steps.keystore.outputs.path }}
           ANDROID_KEY_STORE_PASSWORD: ${{ secrets.ANDROID_KEY_STORE_PASSWORD }}
@@ -54,7 +54,13 @@ jobs:
           ANDROID_KEY_STORE_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_STORE_PASSWORD }}
         with:
           arguments: bundle${{ matrix.name }} --scan
+          build-scan-publish: true
           cache-disabled: true
+
+      - name: Terminate lingering processes
+        run: |
+          pkill -9 java
+          pkill -9 gradle
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
