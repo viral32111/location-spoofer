@@ -42,7 +42,7 @@ jobs:
           echo "path=$HOME/android-key-store.apk" >> "$GITHUB_OUTPUT"
 
       - name: Build project
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         env:
           ANDROID_KEY_STORE_PATH: ${{ steps.keystore.outputs.path }}
           ANDROID_KEY_STORE_PASSWORD: ${{ secrets.ANDROID_KEY_STORE_PASSWORD }}
