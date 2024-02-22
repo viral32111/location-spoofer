@@ -38,9 +38,13 @@ jobs:
         id: keystore
         if: ${{ github.event_name != 'pull_request' && !startsWith( github.ref_name, 'dependabot/' ) }}
         run: |
-          echo "${{ secrets.ANDROID_KEY_STORE }}" | base64 -d > $HOME/android-key-store.jks
-          echo "path=$HOME/android-key-store.apk" >> "$GITHUB_OUTPUT"
-
+          echo ${{ secrets.ANDROID_KEY_STORE }} | base64 -d > $HOME/android-key-store.jks
+          echo path=$HOME/android-key-store.apk >> "$GITHUB_OUTPUT"
+      
+      - name: Create Gradle properties
+        if: ${{ github.event_name != 'pull_request' && !startsWith( github.ref_name, 'dependabot/' ) }}
+        run: echo ${{ secrets.GOOGLE_MAPS_API_KEY }} > local.properties
+  
       - name: Build project
         uses: gradle/gradle-build-action@v3
         env:
@@ -57,6 +61,8 @@ jobs:
         with:
           name: ${{ matrix.name }}
           path: app/build/outputs/apk/*/*
+
+  # TODO: Test on Firebase Test Lab
 
   # TODO: Upload to Google Play Store as draft/internal testing release via Fastlane
 
