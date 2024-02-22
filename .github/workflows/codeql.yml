@@ -41,7 +41,7 @@ jobs:
       - name: Build project
         uses: gradle/gradle-build-action@v3
         with:
-          arguments: assembleRelease --scan
+          arguments: bundleRelease --scan
           cache-disabled: true
 
       - name: Perform CodeQL analysis
