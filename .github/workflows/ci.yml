@@ -40,11 +40,11 @@ jobs:
         run: |
           echo ${{ secrets.ANDROID_KEY_STORE }} | base64 -d > $HOME/android-key-store.jks
           echo path=$HOME/android-key-store.apk >> "$GITHUB_OUTPUT"
-      
+
       - name: Create Gradle properties
         if: ${{ github.event_name != 'pull_request' && !startsWith( github.ref_name, 'dependabot/' ) }}
         run: echo "GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}" > local.properties
-  
+
       - name: Build project
         uses: gradle/gradle-build-action@v3
         env:

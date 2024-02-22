@@ -4,6 +4,11 @@ plugins {
 
 	// Google Maps
 	id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+
+	// Firebase
+	id("com.google.gms.google-services")
+	id("com.google.firebase.crashlytics")
+	id("com.google.firebase.firebase-perf")
 }
 
 val storeFilePath = System.getenv("ANDROID_SIGNING_STORE_PATH") ?: ""
@@ -98,6 +103,15 @@ dependencies {
 
 	// Splash Screen - https://developer.android.com/develop/ui/views/launch/splash-screen
 	implementation("androidx.core:core-splashscreen:1.0.1")
+
+	// Firebase - https://firebase.google.com/docs/android/setup#available-libraries
+	implementation(platform("com.google.firebase:firebase-bom:32.7.2"))
+	implementation("com.google.firebase:firebase-analytics")
+	implementation("com.google.firebase:firebase-crashlytics")
+	implementation("com.google.firebase:firebase-perf")
+
+	// Play Integrity API
+	implementation("com.google.android.play:integrity:1.3.0")
 
 	// Testing
 	testImplementation("junit:junit:4.13.2")
