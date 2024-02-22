@@ -1,7 +1,6 @@
 # Location Spoofer
 
-[![App](https://github.com/viral32111/location-spoofer/actions/workflows/app.yml/badge.svg)](https://github.com/viral32111/location-spoofer/actions/workflows/app.yml)
-[![Service](https://github.com/viral32111/location-spoofer/actions/workflows/service.yml/badge.svg)](https://github.com/viral32111/location-spoofer/actions/workflows/service.yml)
+[![CI](https://github.com/viral32111/location-spoofer/actions/workflows/ci.yml/badge.svg)](https://github.com/viral32111/location-spoofer/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/viral32111/location-spoofer/actions/workflows/codeql.yml/badge.svg)](https://github.com/viral32111/location-spoofer/actions/workflows/codeql.yml)
 ![GitHub tag (with filter)](https://img.shields.io/github/v/tag/viral32111/location-spoofer?label=Latest)
 ![GitHub repository size](https://img.shields.io/github/repo-size/viral32111/location-spoofer?label=Size)
@@ -12,7 +11,8 @@ An Android app that spoofs your device's location.
 
 ## 🔗 Useful Links
 
-
+* [Fake Traveler](https://github.com/mcastillof/FakeTraveler)
+* [How to mock location on device?](https://stackoverflow.com/q/2531317)
 
 ## ⚖️ License
 
