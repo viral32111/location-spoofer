@@ -13,6 +13,8 @@ An Android app that spoofs your device's location.
 
 * [Fake Traveler](https://github.com/mcastillof/FakeTraveler)
 * [How to mock location on device?](https://stackoverflow.com/q/2531317)
+* [Add a map to your Android app](https://developers.google.com/codelabs/maps-platform/maps-platform-101-android)
+* [Material 3 Dialog](https://github.com/material-components/material-components-android/blob/master/docs/components/Dialog.md)
 
 ## ⚖️ License
 

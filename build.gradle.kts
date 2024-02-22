@@ -4,6 +4,13 @@ plugins {
 	id("org.jetbrains.kotlin.android") version "1.9.22" apply false
 }
 
+// Google Maps
+buildscript {
+	dependencies {
+		classpath("com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin:2.0.1")
+	}
+}
+
 // Accept ToS for Gradle build scanning
 if (hasProperty("buildScan")) {
 	extensions.findByName("buildScan")?.withGroovyBuilder {

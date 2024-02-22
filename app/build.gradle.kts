@@ -1,6 +1,9 @@
 plugins {
 	id("com.android.application")
 	id("org.jetbrains.kotlin.android")
+
+	// Google Maps
+	id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
 val storeFilePath = System.getenv("ANDROID_SIGNING_STORE_PATH") ?: ""
@@ -85,10 +88,16 @@ dependencies {
 	// Core
 	implementation("androidx.core:core-ktx:1.12.0")
 	implementation("androidx.appcompat:appcompat:1.6.1")
+	implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
 	// Material UI
 	implementation("com.google.android.material:material:1.11.0")
-	implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+
+	// Google Maps
+	implementation("com.google.android.gms:play-services-maps:18.2.0")
+
+	// Splash Screen - https://developer.android.com/develop/ui/views/launch/splash-screen
+	implementation("androidx.core:core-splashscreen:1.0.1")
 
 	// Testing
 	testImplementation("junit:junit:4.13.2")

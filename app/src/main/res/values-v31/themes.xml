@@ -13,5 +13,8 @@
 
 		<!-- Status bar color -->
 		<item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+
+		<!-- Splash screen background color -->
+		<item name="android:windowSplashScreenBackground">@color/icon_background</item>
 	</style>
 </resources>

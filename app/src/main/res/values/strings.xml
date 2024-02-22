@@ -1,3 +1,30 @@
 <resources>
 	<string name="app_name">Location Spoofer</string>
+
+	<string name="latitude_input_label">Latitude</string>
+	<string name="latitude_input_placeholder">51.50722</string>
+
+	<string name="longitude_input_label">Longitude</string>
+	<string name="longitude_input_placeholder">-0.1275</string>
+
+	<string name="toggle_button_label_start">Start</string>
+	<string name="toggle_button_label_stop">Stop</string>
+	<string name="clear_button_label">Clear</string>
+
+	<string name="map_speakable">Google Map</string>
+
+	<string name="dialog_title">Oops!</string>
+	<string name="dialog_positive_button">Okay</string>
+	<string name="dialog_negative_button">Exit</string>
+	<string name="dialog_message_grant_permission_location">Please grant permission for this app to access your device\'s precise location. This is required to confirm the spoof has succeeded.</string>
+	<string name="dialog_message_grant_permission_notification">Please grant permission for this app to send notifications. This is required to indicate the app is working in the background.</string>
+	<string name="dialog_message_provider_disabled">Please enable the GPS provider to use this app.</string>
+	<string name="dialog_message_location_disabled">Please enable location to use this app.</string>
+	<string name="dialog_message_inputs">Please enter both a latitude and longitude.</string>
+	<string name="dialog_message_notifications_disabled">Please enable notifications for this app.</string>
+
+	<string name="notification_ongoing_channel_name">Ongoing</string>
+	<string name="notification_ongoing_channel_description">Indicates the app is working in the background.</string>
+	<string name="notification_ongoing_title">Spoofing Location</string>
+	<string name="notification_ongoing_text">Your location is being spoofed.</string>
 </resources>

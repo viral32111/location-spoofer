@@ -2,8 +2,109 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/mainConstraintLayout"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	tools:context=".MainActivity">
+
+	<TextView
+		android:id="@+id/latitudeLabel"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="@dimen/edge_margin"
+		android:layout_marginTop="@dimen/edge_margin"
+		android:layout_marginEnd="@dimen/edge_margin"
+		android:text="@string/latitude_input_label"
+		android:textSize="16sp"
+		android:textStyle="bold"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent" />
+
+	<EditText
+		android:id="@+id/latitudeInput"
+		android:layout_width="0dp"
+		android:layout_height="@dimen/input_height"
+		android:layout_marginStart="@dimen/edge_margin"
+		android:layout_marginEnd="@dimen/edge_margin"
+		android:autofillHints="@string/latitude_input_placeholder"
+		android:ems="10"
+		android:hint="@string/latitude_input_placeholder"
+		android:inputType="number|numberDecimal|numberSigned"
+		android:textColorHint="@color/input_hint"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintHorizontal_bias="1.0"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/latitudeLabel" />
+
+	<TextView
+		android:id="@+id/longitudeLabel"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="@dimen/edge_margin"
+		android:layout_marginTop="16dp"
+		android:layout_marginEnd="@dimen/edge_margin"
+		android:text="@string/longitude_input_label"
+		android:textSize="16sp"
+		android:textStyle="bold"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintHorizontal_bias="0.0"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/latitudeInput" />
+
+	<EditText
+		android:id="@+id/longitudeInput"
+		android:layout_width="0dp"
+		android:layout_height="@dimen/input_height"
+		android:layout_marginStart="@dimen/edge_margin"
+		android:layout_marginEnd="@dimen/edge_margin"
+		android:autofillHints="@string/longitude_input_placeholder"
+		android:ems="10"
+		android:hint="@string/longitude_input_placeholder"
+		android:inputType="number|numberDecimal|numberSigned"
+		android:textColorHint="@color/input_hint"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintHorizontal_bias="0.0"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/longitudeLabel" />
+
+	<Button
+		android:id="@+id/toggleButton"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="@dimen/edge_margin"
+		android:layout_marginTop="16dp"
+		android:layout_marginEnd="8dp"
+		android:backgroundTint="@color/button_start"
+		android:text="@string/toggle_button_label_start"
+		app:layout_constraintEnd_toStartOf="@+id/clearButton"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/longitudeInput" />
+
+	<Button
+		android:id="@+id/clearButton"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="8dp"
+		android:layout_marginTop="16dp"
+		android:layout_marginEnd="@dimen/edge_margin"
+		android:text="@string/clear_button_label"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toEndOf="@+id/toggleButton"
+		app:layout_constraintTop_toBottomOf="@+id/longitudeInput" />
+
+	<com.google.android.gms.maps.MapView
+		android:id="@+id/googleMap"
+		android:layout_width="0dp"
+		android:layout_height="0dp"
+		android:layout_marginStart="@dimen/edge_margin"
+		android:layout_marginTop="16dp"
+		android:layout_marginEnd="@dimen/edge_margin"
+		android:layout_marginBottom="@dimen/edge_margin"
+		android:contentDescription="@string/map_speakable"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/toggleButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
