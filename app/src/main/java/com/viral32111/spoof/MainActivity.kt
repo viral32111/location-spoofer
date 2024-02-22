@@ -21,6 +21,10 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.Firebase
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.analytics
+import com.google.firebase.analytics.logEvent
 
 class MainActivity : AppCompatActivity() {
 	private val logTag = "MainActivity"
@@ -143,6 +147,12 @@ class MainActivity : AppCompatActivity() {
 
 		// Request permission & begin updating the map
 		beginLocationUpdates()
+
+		// Log opening the app via Analytics
+		Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT) {
+			param(FirebaseAnalytics.Param.CONTENT_TYPE, "activity")
+			param(FirebaseAnalytics.Param.CONTENT, "MainActivity")
+		}
 	}
 
 	private fun showMaterialDialog(@StringRes message: Int, isFinisher: Boolean = true) {
