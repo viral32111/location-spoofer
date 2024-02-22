@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    paths:
+      - 'app/**/*'
+      - 'gradle/**/*'
+      - '*.kts'
+      - '*.gradle'
+      - '*.properties'
+      - '.github/workflows/*.yml'
+    branches:
+      - '**'
+    tags:
+      - '*.*.*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        name: [ Debug, Release ]
+    permissions:
+      contents: read
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: temurin
+
+      - name: Create key store
+        id: keystore
+        if: ${{ github.event_name != 'pull_request' && !startsWith( github.ref_name, 'dependabot/' ) }}
+        run: |
+          echo "${{ secrets.ANDROID_KEY_STORE }}" | base64 -d > $HOME/android-key-store.jks
+          echo "path=$HOME/android-key-store.apk" >> "$GITHUB_OUTPUT"
+
+      - name: Build project
+        uses: gradle/gradle-build-action@v2
+        env:
+          ANDROID_KEY_STORE_PATH: ${{ steps.keystore.outputs.path }}
+          ANDROID_KEY_STORE_PASSWORD: ${{ secrets.ANDROID_KEY_STORE_PASSWORD }}
+          ANDROID_KEY_STORE_KEY_ALIAS: ${{ secrets.ANDROID_KEY_STORE_ALIAS }}
+          ANDROID_KEY_STORE_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_STORE_PASSWORD }}
+        with:
+          arguments: assemble${{ matrix.name }} --scan
+          cache-disabled: true
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.name }}
+          path: app/build/outputs/apk/*/*
+
+  # TODO: Upload to Google Play Store as draft/internal testing release via Fastlane
+
+  release:
+    name: Release
+    runs-on: ubuntu-22.04
+    needs: build
+    if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
+    permissions:
+      contents: write
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: release
+          path: artifact
+
+      - name: Bundle build artifact
+        run: zip -r ${{ github.event.repository.name }}.zip artifact
+
+      - name: Create draft release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          tag_name: ${{ github.ref_name }}
+          files: ${{ github.event.repository.name }}.zip
+          token: ${{ secrets.GITHUB_TOKEN }}
