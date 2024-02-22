@@ -11,7 +11,7 @@ plugins {
 	id("com.google.firebase.firebase-perf")
 }
 
-val storeFilePath = System.getenv("ANDROID_SIGNING_STORE_PATH") ?: ""
+val storeFilePath = System.getenv("ANDROID_KEY_STORE_PATH") ?: ""
 
 android {
 	namespace = "com.viral32111.spoof"
@@ -42,9 +42,9 @@ android {
 		create("release") {
 			if (storeFilePath.isNotBlank()) {
 				storeFile = file(storeFilePath)
-				storePassword = System.getenv("ANDROID_SIGNING_PASSWORD") ?: ""
-				keyAlias = System.getenv("ANDROID_SIGNING_ALIAS") ?: ""
-				keyPassword = System.getenv("ANDROID_SIGNING_PASSWORD") ?: ""
+				storePassword = System.getenv("ANDROID_KEY_STORE_PASSWORD") ?: ""
+				keyAlias = System.getenv("ANDROID_KEY_STORE_KEY_ALIAS") ?: ""
+				keyPassword = System.getenv("ANDROID_KEY_STORE_KEY_PASSWORD") ?: ""
 			}
 		}
 	}
