@@ -105,7 +105,7 @@ dependencies {
 	implementation("androidx.core:core-splashscreen:1.0.1")
 
 	// Firebase - https://firebase.google.com/docs/android/setup#available-libraries
-	implementation(platform("com.google.firebase:firebase-bom:32.7.2"))
+	implementation(platform("com.google.firebase:firebase-bom:32.7.3"))
 	implementation("com.google.firebase:firebase-analytics")
 	implementation("com.google.firebase:firebase-crashlytics")
 	implementation("com.google.firebase:firebase-perf")
