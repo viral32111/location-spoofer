@@ -288,10 +288,15 @@ class MainActivity : AppCompatActivity() {
 	private fun teardownMockLocation() {
 		val locationManager = getLocationManager() ?: return
 
-		locationManager.removeTestProvider(LocationManager.GPS_PROVIDER)
-		locationManager.removeTestProvider(LocationManager.NETWORK_PROVIDER)
+		try {
+			locationManager.removeTestProvider(LocationManager.GPS_PROVIDER)
+			locationManager.removeTestProvider(LocationManager.NETWORK_PROVIDER)
 
-		Log.i(logTag, "Removed mock location providers.")
+			Log.i(logTag, "Removed mock location providers.")
+		} catch (exception: SecurityException) {
+			Log.w(logTag, "We're not set as the mock location app!")
+			showMaterialDialog(com.viral32111.spoof.R.string.dialog_message_no_mock_location)
+		}
 	}
 
 	// https://github.com/mcastillof/FakeTraveler/blob/master/app/src/main/java/cl/coders/faketraveler/MockLocationProvider.java
@@ -316,9 +321,13 @@ class MainActivity : AppCompatActivity() {
 
 		fakeLocation.elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
 
-		locationManager.setTestProviderLocation(provider, fakeLocation)
-
-		Log.i(logTag, "Updated mock location to [ $latitude, $longitude ].")
+		try {
+			locationManager.setTestProviderLocation(provider, fakeLocation)
+			Log.i(logTag, "Updated mock location to [ $latitude, $longitude ].")
+		} catch (exception: SecurityException) {
+			Log.w(logTag, "We're not set as the mock location app!")
+			showMaterialDialog(com.viral32111.spoof.R.string.dialog_message_no_mock_location)
+		}
 	}
 
 	private fun showMaterialDialog(@StringRes message: Int, isFinisher: Boolean = true) {
