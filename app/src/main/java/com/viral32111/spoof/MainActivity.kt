@@ -9,7 +9,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
-import android.location.LocationRequest
 import android.location.provider.ProviderProperties
 import android.os.Build
 import android.os.Bundle
@@ -30,7 +29,6 @@ import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.analytics
 import com.google.firebase.analytics.logEvent
-import kotlin.math.log
 
 class MainActivity : AppCompatActivity() {
 	private val logTag = "MainActivity"
@@ -114,27 +112,31 @@ class MainActivity : AppCompatActivity() {
 				}
 
 				// Fake the location :)
-				setupMockLocation()
-				setMockLocation(LocationManager.GPS_PROVIDER, latitude, longitude)
-				setMockLocation(LocationManager.NETWORK_PROVIDER, latitude, longitude)
+				if (setupMockLocation()) {
+					setMockLocation(LocationManager.GPS_PROVIDER, latitude, longitude)
+					setMockLocation(LocationManager.NETWORK_PROVIDER, latitude, longitude)
 
-				// Let them know that we're doing stuff
-				showOngoingNotification()
+					// Let them know that we're doing stuff
+					showOngoingNotification()
 
-				// Visualise changes
-				Log.i(logTag, "Positioning map at [ $latitude, $longitude ]...")
-				map.getMapAsync {
-					it.moveCamera(
-						CameraUpdateFactory.newLatLngZoom(
-							LatLng(latitude, longitude),
-							18F
+					// Visualise changes
+					Log.i(logTag, "Positioning map at [ $latitude, $longitude ]...")
+					map.getMapAsync {
+						it.moveCamera(
+							CameraUpdateFactory.newLatLngZoom(
+								LatLng(latitude, longitude),
+								18F
+							)
 						)
-					)
-				}
+					}
 
-				// Swap button
-				applyButton.text = getText(R.string.toggle_button_label_stop)
-				applyButton.setBackgroundColor(getColor(R.color.button_stop))
+					// Swap button
+					applyButton.text = getText(R.string.toggle_button_label_stop)
+					applyButton.setBackgroundColor(getColor(R.color.button_stop))
+				} else {
+					Log.w(logTag, "Uh-oh! We cannot mock the location :(")
+					showMaterialDialog(R.string.dialog_message_no_mock_location)
+				}
 			} else {
 				// No more magic
 				teardownMockLocation()
@@ -214,8 +216,8 @@ class MainActivity : AppCompatActivity() {
 	}
 
 	@SuppressLint("WrongConstant")
-	private fun setupMockLocation() {
-		val locationManager = getLocationManager() ?: return
+	private fun setupMockLocation(): Boolean {
+		val locationManager = getLocationManager() ?: return false
 
 		try {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -273,9 +275,13 @@ class MainActivity : AppCompatActivity() {
 			}
 
 			Log.i(logTag, "Added mock location providers.")
+
+			return true
 		} catch (exception: SecurityException) {
 			Log.w(logTag, "We're not set as the mock location app!")
 			showMaterialDialog(R.string.dialog_message_no_mock_location)
+
+			return false
 		}
 	}
 
