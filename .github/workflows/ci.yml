@@ -86,7 +86,7 @@ jobs:
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: release
+          name: Release
           path: artifact
 
       - name: Create draft release
@@ -94,5 +94,5 @@ jobs:
         with:
           draft: true
           tag_name: ${{ github.ref_name }}
-          files: artifact/release/*.aab
+          files: artifact/Release/*.aab
           token: ${{ secrets.GITHUB_TOKEN }}
