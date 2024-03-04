@@ -94,5 +94,5 @@ jobs:
         with:
           draft: true
           tag_name: ${{ github.ref_name }}
-          files: artifact/Release/*.aab
+          files: artifact/release/*.aab
           token: ${{ secrets.GITHUB_TOKEN }}
