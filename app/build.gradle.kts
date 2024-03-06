@@ -26,8 +26,8 @@ android {
 		minSdk = 29
 		targetSdk = 34
 
-		versionCode = 3 // Increment this with each release
-		versionName = "0.3.0"
+		versionCode = 4 // Increment this with each release
+		versionName = "0.4.0"
 
 		testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -112,6 +112,13 @@ dependencies {
 
 	// Play Integrity API
 	implementation("com.google.android.play:integrity:1.3.0")
+
+	// Workers
+	implementation("androidx.work:work-runtime-ktx:2.9.0")
+	implementation("androidx.work:work-rxjava2:2.9.0")
+	implementation("androidx.work:work-gcm:2.9.0")
+	implementation( "androidx.work:work-multiprocess:2.9.0")
+	androidTestImplementation("androidx.work:work-testing:2.9.0")
 
 	// Testing
 	testImplementation("junit:junit:4.13.2")

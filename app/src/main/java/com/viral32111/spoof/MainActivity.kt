@@ -2,17 +2,14 @@ package com.viral32111.spoof
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
-import android.location.Location
 import android.location.LocationManager
 import android.location.provider.ProviderProperties
 import android.os.Build
 import android.os.Bundle
-import android.os.SystemClock
 import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
@@ -20,6 +17,13 @@ import android.widget.EditText
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequest
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
@@ -29,6 +33,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.analytics
 import com.google.firebase.analytics.logEvent
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
 	private val logTag = "MainActivity"
@@ -40,8 +45,12 @@ class MainActivity : AppCompatActivity() {
 	private val locationPermissionRequestCode = 42069
 	private val notificationPermissionRequestCode = 69420
 
-	private val ongoingNotificationChannel = "ongoing"
-	private val ongoingNotificationIdentifier = 800813
+	companion object {
+		const val WORKER_UNIQUE_NAME = "updateMockLocation"
+	}
+
+	//private val ongoingNotificationChannel = "ongoing"
+	//private val ongoingNotificationIdentifier = 800813
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -79,7 +88,7 @@ class MainActivity : AppCompatActivity() {
 
 		// Update UI if persistent values exist
 		if (persistentLatitude != -1337F) latitudeInput.setText(persistentLatitude.toString())
-		if (persistentLongitude != -1337F) longitudeInput.setText(persistentLatitude.toString())
+		if (persistentLongitude != -1337F) longitudeInput.setText(persistentLongitude.toString())
 
 		// Change the map position when the apply button is pressed
 		applyButton.setOnClickListener {
@@ -113,13 +122,16 @@ class MainActivity : AppCompatActivity() {
 
 				// Fake the location :)
 				if (setupMockLocation()) {
-					setMockLocation(LocationManager.GPS_PROVIDER, latitude, longitude)
-					setMockLocation(LocationManager.NETWORK_PROVIDER, latitude, longitude)
+					startUpdatingMockLocation(latitude, longitude)
+
+					//setMockLocation(LocationManager.GPS_PROVIDER, latitude, longitude)
+					//setMockLocation(LocationManager.NETWORK_PROVIDER, latitude, longitude)
 
 					// Let them know that we're doing stuff
-					showOngoingNotification()
+					//showOngoingNotification()
 
 					// Visualise changes
+					/*
 					Log.i(logTag, "Positioning map at [ $latitude, $longitude ]...")
 					map.getMapAsync {
 						it.moveCamera(
@@ -129,6 +141,11 @@ class MainActivity : AppCompatActivity() {
 							)
 						)
 					}
+					*/
+
+					// Disable inputs
+					latitudeInput.isEnabled = false
+					longitudeInput.isEnabled = false
 
 					// Swap button
 					applyButton.text = getText(R.string.toggle_button_label_stop)
@@ -139,10 +156,15 @@ class MainActivity : AppCompatActivity() {
 				}
 			} else {
 				// No more magic
+				stopUpdatingMockLocation()
 				teardownMockLocation()
 
 				// We've stopped doing stuff
-				hideOngoingNotification()
+				//hideOngoingNotification()
+
+				// Enable inputs
+				latitudeInput.isEnabled = true
+				longitudeInput.isEnabled = true
 
 				// Swap button
 				applyButton.text = getText(R.string.toggle_button_label_start)
@@ -152,6 +174,10 @@ class MainActivity : AppCompatActivity() {
 
 		// Reset input values when the clear button is pressed
 		clearButton.setOnClickListener {
+
+			// Enable & clear inputs
+			latitudeInput.isEnabled = true
+			longitudeInput.isEnabled = true
 			latitudeInput.text.clear()
 			longitudeInput.text.clear()
 
@@ -295,39 +321,37 @@ class MainActivity : AppCompatActivity() {
 			Log.i(logTag, "Removed mock location providers.")
 		} catch (exception: SecurityException) {
 			Log.w(logTag, "We're not set as the mock location app!")
-			showMaterialDialog(com.viral32111.spoof.R.string.dialog_message_no_mock_location)
+			showMaterialDialog(R.string.dialog_message_no_mock_location)
 		}
 	}
 
-	// https://github.com/mcastillof/FakeTraveler/blob/master/app/src/main/java/cl/coders/faketraveler/MockLocationProvider.java
-	private fun setMockLocation(provider: String, latitude: Double, longitude: Double) {
-		val locationManager = getLocationManager() ?: return
+	private fun startUpdatingMockLocation(latitude: Double, longitude: Double) {
+		val periodicConstraints = Constraints.Builder()
+			.setRequiredNetworkType(NetworkType.NOT_REQUIRED)
+			.setRequiresCharging(false)
+			.setRequiresBatteryNotLow(false)
+			.setRequiresDeviceIdle(false)
+			.setRequiresStorageNotLow(false)
+			.build()
 
-		// Either LocationManager.NETWORK_PROVIDER or LocationManager.GPS_PROVIDER
-		val fakeLocation = Location(provider).apply {
-			this.latitude = latitude
-			this.longitude = longitude
+		val workRequest = PeriodicWorkRequestBuilder<UpdateMockLocationWorker>(PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS, TimeUnit.MILLISECONDS)
+			.setConstraints(periodicConstraints)
+			.setInitialDelay(1, TimeUnit.SECONDS)
+			.setInputData(workDataOf(UpdateMockLocationWorker.LATITUDE_KEY to latitude))
+			.setInputData(workDataOf(UpdateMockLocationWorker.LONGITUDE_KEY to longitude))
+			.build()
 
-			this.altitude = 3.0
-			this.time = System.currentTimeMillis()
-			this.speed = 0.01F
-			this.bearing = 1F
-			this.accuracy = 3F
-		}
+		val workManager = WorkManager.getInstance(this)
+		workManager.enqueueUniquePeriodicWork(WORKER_UNIQUE_NAME, ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE, workRequest)
 
-		fakeLocation.bearingAccuracyDegrees = 0.1F
-		fakeLocation.verticalAccuracyMeters = 0.1F
-		fakeLocation.speedAccuracyMetersPerSecond = 0.1F
+		Log.i(logTag, "Started periodic worker '${workRequest.id}' (${WORKER_UNIQUE_NAME}).")
+	}
 
-		fakeLocation.elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
+	private fun stopUpdatingMockLocation() {
+		val workManager = WorkManager.getInstance(this)
+		workManager.cancelUniqueWork(WORKER_UNIQUE_NAME)
 
-		try {
-			locationManager.setTestProviderLocation(provider, fakeLocation)
-			Log.i(logTag, "Updated mock location to [ $latitude, $longitude ].")
-		} catch (exception: SecurityException) {
-			Log.w(logTag, "We're not set as the mock location app!")
-			showMaterialDialog(com.viral32111.spoof.R.string.dialog_message_no_mock_location)
-		}
+		Log.i(logTag, "Stopped periodic worker '${WORKER_UNIQUE_NAME}'.")
 	}
 
 	private fun showMaterialDialog(@StringRes message: Int, isFinisher: Boolean = true) {
@@ -349,6 +373,40 @@ class MainActivity : AppCompatActivity() {
 		dialogBuilder.show()
 	}
 
+	private fun createNotificationChannel() {
+		val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+		// Ensure we have permission (only for Android 13)
+		if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+			Log.w(logTag, "No permissions for notifications!")
+			requestPermissions(
+				arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+				notificationPermissionRequestCode
+			)
+			return
+		}
+
+		// Ensure notifications are enabled
+		if (!notificationManager.areNotificationsEnabled()) {
+			Log.w(logTag, "Notifications are disabled!")
+			showMaterialDialog(R.string.dialog_message_notifications_disabled)
+			return
+		}
+
+		notificationManager.createNotificationChannel(
+			NotificationChannel(
+				UpdateMockLocationWorker.NOTIFICATION_CHANNEL,
+				getText(R.string.notification_ongoing_channel_name),
+				NotificationManager.IMPORTANCE_LOW
+			).apply {
+				description = getText(R.string.notification_ongoing_channel_description).toString()
+			}
+		)
+
+		Log.i(logTag, "Created notification channel '${UpdateMockLocationWorker.NOTIFICATION_CHANNEL}'.")
+	}
+
+	/*
 	private fun showOngoingNotification() {
 		val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -409,8 +467,9 @@ class MainActivity : AppCompatActivity() {
 		notificationManager.cancel(ongoingNotificationIdentifier)
 		Log.i(logTag, "Hidden on-going notification.")
 	}
+	*/
 
-	private fun beginLocationUpdates() {
+	private fun startLocationUpdates() {
 		val map = findViewById<MapView>(R.id.googleMap)
 		val locationManager = getLocationManager() ?: return
 
@@ -418,6 +477,7 @@ class MainActivity : AppCompatActivity() {
 		if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) return
 
 		// Instantly update the map with last known location
+		/*
 		map.getMapAsync {
 			it.isMyLocationEnabled = true
 
@@ -430,11 +490,23 @@ class MainActivity : AppCompatActivity() {
 
 			it.moveCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 18F))
 		}
+		*/
 
 		// Periodically update the map with real time
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000L, 5F) { location ->
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 1F) { location ->
 			val coordinates = LatLng(location.latitude, location.longitude)
 			Log.i(logTag, "Positioning map at GPS provider location [ ${coordinates.latitude}, ${coordinates.longitude} ]...")
+
+			map.getMapAsync { map ->
+				map.isMyLocationEnabled = true
+
+				map.moveCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 18F))
+			}
+		}
+
+		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000L, 1F) { location ->
+			val coordinates = LatLng(location.latitude, location.longitude)
+			Log.i(logTag, "Positioning map at network provider location [ ${coordinates.latitude}, ${coordinates.longitude} ]...")
 
 			map.getMapAsync { map ->
 				map.isMyLocationEnabled = true
@@ -464,7 +536,7 @@ class MainActivity : AppCompatActivity() {
 				return
 			}
 
-			beginLocationUpdates()
+			startLocationUpdates()
 		}
 
 		if (requestCode == notificationPermissionRequestCode) {
@@ -474,7 +546,8 @@ class MainActivity : AppCompatActivity() {
 				return
 			}
 
-			showOngoingNotification()
+			//showOngoingNotification()
+			createNotificationChannel()
 		}
 	}
 
@@ -486,8 +559,9 @@ class MainActivity : AppCompatActivity() {
 
 		Log.i(logTag, "Activity started.")
 
-		// Request permission & begin updating the map
-		beginLocationUpdates()
+		// Request permission & start updating the map
+		startLocationUpdates()
+		createNotificationChannel()
 	}
 
 	override fun onStop() {
@@ -498,8 +572,8 @@ class MainActivity : AppCompatActivity() {
 
 		Log.i(logTag, "Activity stopped.")
 
-		hideOngoingNotification()
-		teardownMockLocation()
+		//hideOngoingNotification()
+		//teardownMockLocation()
 	}
 
 	override fun onPause() {
@@ -528,7 +602,8 @@ class MainActivity : AppCompatActivity() {
 
 		Log.i(logTag, "Activity destroyed.")
 
-		hideOngoingNotification()
+		//hideOngoingNotification()
+		stopUpdatingMockLocation()
 		teardownMockLocation()
 	}
 
