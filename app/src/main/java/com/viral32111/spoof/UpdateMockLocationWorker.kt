@@ -2,7 +2,6 @@ package com.viral32111.spoof
 
 import android.Manifest
 import android.app.Notification
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
@@ -22,9 +21,9 @@ class UpdateMockLocationWorker(
 	private val context: Context,
 	parameters: WorkerParameters
 ) : CoroutineWorker(context, parameters) {
-	private val logTag = "UpdateMockLocationWorker"
-
 	companion object {
+		const val LOG_TAG = "UpdateMockLocationWorker"
+
 		const val LATITUDE_KEY = "latitude"
 		const val LONGITUDE_KEY = "longitude"
 
@@ -33,8 +32,6 @@ class UpdateMockLocationWorker(
 	}
 
 	override suspend fun doWork(): Result {
-		Log.d(logTag, "aaaaaaaaaaaaaaaaaaaa")
-
 		val latitude = inputData.getDouble(LATITUDE_KEY, -1337.0)
 		val longitude = inputData.getDouble(LONGITUDE_KEY, -1337.0)
 		if (latitude == -1337.0 || longitude == -1337.0) return Result.failure()
@@ -51,18 +48,18 @@ class UpdateMockLocationWorker(
 
 		// Ensure location is enabled
 		if (!locationManager.isLocationEnabled) {
-			Log.w(logTag, "Location is is disabled!")
+			Log.w(LOG_TAG, "Location is is disabled!")
 			return
 		}
 
 		// Ensure providers exist
 		if (Build.VERSION.SDK_INT >= 31) {
 			if (!locationManager.hasProvider(LocationManager.NETWORK_PROVIDER)) {
-				Log.w(logTag, "Network provider is disabled!")
+				Log.w(LOG_TAG, "Network provider is disabled!")
 				return
 			}
 			if (!locationManager.hasProvider(LocationManager.GPS_PROVIDER)) {
-				Log.w(logTag, "GPS provider is disabled!")
+				Log.w(LOG_TAG, "GPS provider is disabled!")
 				return
 			}
 		}
@@ -72,7 +69,7 @@ class UpdateMockLocationWorker(
 			context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
 			context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
 		) {
-			Log.w(logTag, "No permissions for coarse and/or fine location!")
+			Log.w(LOG_TAG, "No permissions for coarse and/or fine location!")
 			return
 		}
 
@@ -111,9 +108,9 @@ class UpdateMockLocationWorker(
 				elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
 			})
 
-			Log.i(logTag, "Updated mock location to [ $latitude, $longitude ].")
+			Log.i(LOG_TAG, "Updated mock location to [ $latitude, $longitude ].")
 		} catch (exception: SecurityException) {
-			Log.w(logTag, "We're not set as the mock location app!")
+			Log.w(LOG_TAG, "We're not set as the mock location app!")
 		}
 	}
 
@@ -122,21 +119,23 @@ class UpdateMockLocationWorker(
 
 		// Ensure we have permission (only for Android 13)
 		if (Build.VERSION.SDK_INT >= 33 && context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-			Log.w(logTag, "No permissions for notifications!")
+			Log.w(LOG_TAG, "No permissions for notifications!")
 			return
 		}
 
 		// Ensure notifications are enabled
 		if (!notificationManager.areNotificationsEnabled()) {
-			Log.w(logTag, "Notifications are disabled!")
+			Log.w(LOG_TAG, "Notifications are disabled!")
 			return
 		}
 
 		// Ensure the channel exists
+		/*
 		if (!notificationManager.notificationChannels.any { notificationChannel -> notificationChannel.id === NOTIFICATION_CHANNEL }) {
-			Log.w(logTag, "Notification channel does not exist!")
+			Log.w(LOG_TAG, "Notification channel does not exist!")
 			return
 		}
+		*/
 
 		val notification = Notification.Builder(context, NOTIFICATION_CHANNEL)
 			.setSmallIcon(R.drawable.auto_fix_high_24)
@@ -148,8 +147,9 @@ class UpdateMockLocationWorker(
 			.setOngoing(true) // Prevents swiping away
 			.build()
 
-		//notificationManager.notify(NOTIFICATION_IDENTIFIER, notification)
+		notificationManager.notify(NOTIFICATION_IDENTIFIER, notification)
 		setForeground(ForegroundInfo(NOTIFICATION_IDENTIFIER, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION))
-		Log.i(logTag, "Updated on-going notification.")
+
+		Log.i(LOG_TAG, "Updated on-going notification.")
 	}
 }

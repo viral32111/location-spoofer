@@ -49,9 +49,6 @@ class MainActivity : AppCompatActivity() {
 		const val WORKER_UNIQUE_NAME = "updateMockLocation"
 	}
 
-	//private val ongoingNotificationChannel = "ongoing"
-	//private val ongoingNotificationIdentifier = 800813
-
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_main)
@@ -334,11 +331,13 @@ class MainActivity : AppCompatActivity() {
 			.setRequiresStorageNotLow(false)
 			.build()
 
-		val workRequest = PeriodicWorkRequestBuilder<UpdateMockLocationWorker>(PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS, TimeUnit.MILLISECONDS)
+		val workRequest = PeriodicWorkRequestBuilder<UpdateMockLocationWorker>(1, TimeUnit.SECONDS)
 			.setConstraints(periodicConstraints)
-			.setInitialDelay(1, TimeUnit.SECONDS)
-			.setInputData(workDataOf(UpdateMockLocationWorker.LATITUDE_KEY to latitude))
-			.setInputData(workDataOf(UpdateMockLocationWorker.LONGITUDE_KEY to longitude))
+			//.setInitialDelay(1, TimeUnit.SECONDS)
+			.setInputData(workDataOf(
+				UpdateMockLocationWorker.LATITUDE_KEY to latitude,
+				UpdateMockLocationWorker.LONGITUDE_KEY to longitude
+			))
 			.build()
 
 		val workManager = WorkManager.getInstance(this)
